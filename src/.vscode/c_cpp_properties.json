@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceRoot}",
+                "C:\\Users\\Owner\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.3.0\\cores\\esp8266",
+                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino",
+                "C:/Users/Owner/Documents/Arduino/libraries/Adafruit_MQTT_Library",
+                "C:/Users/Owner/Documents/Arduino/libraries/Adafruit_FONA",
+                "C:/Users/Owner/Documents/Arduino/libraries/aJson"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": false,
+                "path": [
+                    "${workspaceRoot}",
+                    "C:\\Users\\Owner\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.3.0\\cores\\esp8266",
+                    "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino",
+                    "C:/Users/Owner/Documents/Arduino/libraries/Adafruit_MQTT_Library",
+                    "C:/Users/Owner/Documents/Arduino/libraries/Adafruit_FONA",
+                    "C:/Users/Owner/Documents/Arduino/libraries/aJson"
+                ]
+            },
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 3
+}
