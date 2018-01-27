@@ -1,7 +1,7 @@
 {
     "board": "esp8266:esp8266:generic",
     "port": "COM3",
-    "sketch": "simcomMqtt\\simcomMqtt.ino",
-    "output": "./build",
+    "sketch": "src\\simcomMqtt\\simcomMqtt.ino",
+    "output": "./src/build",
     "configuration": "CpuFrequency=80,FlashFreq=80,FlashMode=qio,UploadSpeed=256000,FlashSize=4M1M,ResetMethod=nodemcu,Debug=Serial,DebugLevel=None____"
 }
