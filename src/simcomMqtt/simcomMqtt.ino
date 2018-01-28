@@ -41,7 +41,8 @@ void setup() {
   pinMode(LED, OUTPUT);
 
   delay(50);
-  Serial.println("\nsw read test start!");
+  Serial.println();
+  Serial.println("!start!");
   fonaSerial->begin(115200);
   if (! fona.begin(*fonaSerial)) {
     Serial.println(F("Couldn't find FONA"));
@@ -77,6 +78,9 @@ void setup() {
       isNetOpen = true;
     }
   }
+  fona.enableGPS(true);
+  // テスト用LED点灯
+  digitalWrite(LED, HIGH);
 }
 
 unsigned long current = 0;
@@ -87,23 +91,36 @@ void loop()
 {
   // LED　チェック
   if (millis() - current > 5000) {
-    if (isOn) {
-      digitalWrite(LED, LOW);
-      isOn = false;
-    }
-    else {
-      digitalWrite(LED, HIGH);
-      isOn = true;
-    }
     current = millis();
+    float lat;
+    float lon;
+    if (fona.getGPS(&lat, &lon)) {
+      Serial.print("GPS:(Latitude,Longitude) = (");
+      Serial.print(lat, 10);
+      Serial.print(", ");
+      Serial.print(lon, 10);
+      Serial.println(")");
+      if (isSend) {
+        Serial.println("shutdown...");
+        fona.shutdown(true);
+      }
+    } else {
+      Serial.println("GPS GET Failed");
+    }
   }
-  if (MQTT_connect(5) && !isSend) {
+  if (!isSend) {
+    if (!MQTT_connect(5)) {
+      return;
+    }
     DataElement elem = DataElement();
     elem.setValue("sim5320", 24);
     push(MILKCOCOA_DATASTORE, &elem);
     isSend = true;
+    // Serial.println("shutdown...");
+    // if (!fona.shutdown()) {
+    //   Serial.println("shutdown failed");
+    // }
   }
-
 }
 
 boolean MQTT_connect(uint8_t tryCount) {
@@ -123,10 +140,6 @@ boolean MQTT_connect(uint8_t tryCount) {
     }
     Serial.println(mqtt.connectErrorString(ret));
     Serial.println("Retrying MQTT connection in 5 seconds...");
-    // test
-    if (!fona.shutdown()) {
-      Serial.println("shutdown failed");
-    }
     mqtt.disconnect();
     delay(5000);  // wait 5 seconds
     --tryCount;
