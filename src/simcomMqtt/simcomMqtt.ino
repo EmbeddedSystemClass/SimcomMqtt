@@ -15,10 +15,10 @@ static const char kCodeLF = '\n';
 #define MILKCOCOA_DATASTORE "testNotif"
 #define MILKCOCOA_SERVERPORT  1883
 
-#define LED 14
+#define LED 13
 #define FONA_RX 5
 #define FONA_TX 4
-#define FONA_RST 16
+#define FONA_RST 14
 
 // milkcocoa Setting
 const char MQTT_SERVER[] = MILKCOCOA_APP_ID ".mlkcca.com";
