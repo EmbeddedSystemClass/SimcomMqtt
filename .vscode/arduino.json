@@ -3,5 +3,5 @@
     "port": "COM3",
     "sketch": "src\\simcomMqtt\\simcomMqtt.ino",
     "output": "./src/build",
-    "configuration": "CpuFrequency=80,FlashFreq=80,FlashMode=qio,UploadSpeed=256000,FlashSize=4M1M,ResetMethod=nodemcu,Debug=Serial,DebugLevel=None____"
+    "configuration": "CpuFrequency=80,ResetMethod=nodemcu,CrystalFreq=26,FlashFreq=80,FlashMode=qio,FlashSize=4M1M,LwIPVariant=v2mss536,Debug=Serial,DebugLevel=None____,UploadSpeed=256000"
 }
