@@ -21,7 +21,7 @@ static const char kCodeLF = '\n';
 #define FONA_RST 14
 
 // milkcocoa Setting
-const char MQTT_SERVER[] = MILKCOCOA_APP_ID ".mlkcca.com";
+const char MQTT_SERVER[] = "beam.soracom.io";
 const char MQTT_CLIENTID[] = __TIME__ MILKCOCOA_APP_ID;
 
 // Serial Setting
@@ -32,7 +32,7 @@ SoftwareSerial *fonaSerial = &fonaSS;
 Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
 
 // mqtt Setting
-Adafruit_MQTT_FONA mqtt(&fona, MQTT_SERVER, MILKCOCOA_SERVERPORT, MQTT_CLIENTID, "sdammy", MILKCOCOA_APP_ID);
+Adafruit_MQTT_FONA mqtt(&fona, MQTT_SERVER, MILKCOCOA_SERVERPORT, MQTT_CLIENTID, "sora", "sora");
 
 boolean isNetOpen = false;
 
@@ -148,13 +148,13 @@ boolean MQTT_connect(uint8_t tryCount) {
 }
 
 boolean push(const char *path, DataElement *pdataelement) {
-  char topic[100];
+  char topic[] = "/test/mqtt";
   bool ret;
-  char *send_array;
-  sprintf(topic, "%s/%s/push", MILKCOCOA_APP_ID, path);
+  // char *send_array;
+  // sprintf(topic, "%s/%s/push", MILKCOCOA_APP_ID, path);
   Adafruit_MQTT_Publish pushPublisher = Adafruit_MQTT_Publish(&mqtt, topic);
-  send_array = pdataelement->toCharArray();
-  ret = pushPublisher.publish(send_array);
-  free(send_array);
+  // send_array = pdataelement->toCharArray();
+  ret = pushPublisher.publish("SIM5320");
+  // free(send_array);
   return ret;
 }
