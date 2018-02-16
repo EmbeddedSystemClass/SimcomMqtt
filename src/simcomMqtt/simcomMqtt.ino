@@ -18,7 +18,7 @@ static const char kCodeLF = '\n';
 #define LED 13
 #define FONA_RX 5
 #define FONA_TX 4
-#define FONA_RST 14
+#define FONA_RST 2
 
 // milkcocoa Setting
 const char MQTT_SERVER[] = "beam.soracom.io";
@@ -33,6 +33,8 @@ Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
 
 // mqtt Setting
 Adafruit_MQTT_FONA mqtt(&fona, MQTT_SERVER, MILKCOCOA_SERVERPORT, MQTT_CLIENTID, "sora", "sora");
+char gpsData[64] = "\0";
+char imsi[16];
 
 boolean isNetOpen = false;
 
@@ -48,25 +50,12 @@ void setup() {
     Serial.println(F("Couldn't find FONA"));
     while (1);
   }
-  uint8_t type = fona.type();
-  Serial.println(F("FONA is OK"));
-  Serial.print(F("Found "));
-  switch (type) {
-    case FONA800L:
-      Serial.println(F("FONA 800L")); break;
-    case FONA800H:
-      Serial.println(F("FONA 800H")); break;
-    case FONA808_V1:
-      Serial.println(F("FONA 808 (v1)")); break;
-    case FONA808_V2:
-      Serial.println(F("FONA 808 (v2)")); break;
-    case FONA3G_A:
-      Serial.println(F("FONA 3G (American)")); break;
-    case FONA3G_E:
-      Serial.println(F("FONA 3G (European)")); break;
-    default: 
-      Serial.println(F("???")); break;
+  uint8_t len = fona.getSIMIMSI(imsi);
+  if (len <= 0) {
+    Serial.println("failed to read sim");
+    while(1);
   }
+  Serial.println(F("FONA is OK"));
   // net open
   delay(500);
   fona.setGPRSNetworkSettings(F(APN), F(USERNAME), F(PASSWORD));
@@ -92,16 +81,13 @@ void loop()
   // LED　チェック
   if (millis() - current > 5000) {
     current = millis();
-    float lat;
-    float lon;
-    if (fona.getGPS(&lat, &lon)) {
-      Serial.print("GPS:(Latitude,Longitude) = (");
-      Serial.print(lat, 10);
-      Serial.print(", ");
-      Serial.print(lon, 10);
-      Serial.println(")");
+    float lat = 0.0f;
+    float lon = 0.0f;
+    if (fona.getGPS(&lat, &lon) > 0) {
+      sendGPSData(lat, lon);
       if (isSend) {
         Serial.println("shutdown...");
+        delay(1000);
         fona.shutdown(true);
       }
     } else {
@@ -112,15 +98,30 @@ void loop()
     if (!MQTT_connect(5)) {
       return;
     }
-    DataElement elem = DataElement();
-    elem.setValue("sim5320", 24);
-    push(MILKCOCOA_DATASTORE, &elem);
+    push("/test/mqtt", "From SIM5320");
     isSend = true;
-    // Serial.println("shutdown...");
-    // if (!fona.shutdown()) {
-    //   Serial.println("shutdown failed");
-    // }
   }
+}
+
+/**
+ * GPS　データをpushする
+ **/
+void sendGPSData(float& lat, float& lon) {
+  char latStr[16] = "\0";
+  char lonStr[16] = "\0";
+  char temp[16];
+  char* p;
+  dtostrf(lat, 15, 6, temp);
+  p = strtok(temp, " ");
+  strncpy(latStr, p, strlen(p));
+  dtostrf(lon, 15, 6, temp);
+  p = strtok(temp, " ");
+  strncpy(lonStr, p, strlen(p));
+  
+  sprintf(gpsData, "%s,%s", latStr, lonStr);
+  char topic[64] = "/test/mqtt/gps/";
+  strcat(topic, imsi);
+  push(topic, gpsData);
 }
 
 boolean MQTT_connect(uint8_t tryCount) {
@@ -147,14 +148,9 @@ boolean MQTT_connect(uint8_t tryCount) {
   return false;
 }
 
-boolean push(const char *path, DataElement *pdataelement) {
-  char topic[] = "/test/mqtt";
+boolean push(const char *topic, const char* message) {
   bool ret;
-  // char *send_array;
-  // sprintf(topic, "%s/%s/push", MILKCOCOA_APP_ID, path);
   Adafruit_MQTT_Publish pushPublisher = Adafruit_MQTT_Publish(&mqtt, topic);
-  // send_array = pdataelement->toCharArray();
-  ret = pushPublisher.publish("SIM5320");
-  // free(send_array);
+  ret = pushPublisher.publish(message);
   return ret;
 }
